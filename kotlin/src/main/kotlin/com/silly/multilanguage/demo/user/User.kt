@@ -1,4 +1,4 @@
-package com.silly.multilanguage.demo.controller
+package com.silly.multilanguage.demo.user
 
 
 data class UserRequest(

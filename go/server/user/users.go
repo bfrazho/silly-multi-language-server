@@ -46,6 +46,9 @@ func (userServer UserServer) createUser(context *gin.Context){
 	}
 
 	var userResponse UserResponse
-	myjson.BindJSON(response.Body, &userResponse)
+	if err := myjson.BindJSON(response.Body, &userResponse); err != nil {
+		context.String(http.StatusInternalServerError, err.Error())
+		return
+	}
 	context.JSON(http.StatusOK, userResponse)
 }

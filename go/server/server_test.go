@@ -69,3 +69,22 @@ func TestFailedToCallEndpointReturns500(t *testing.T) {
     output, _ := io.ReadAll(recorder.Body)
     assert.Equal(t, "Post \"http://localhost:100000000000000000000/users\": dial tcp: address 100000000000000000000: invalid port", string(output))
 }
+
+func TestEndpointReturnedInvalidDataReturn500(t *testing.T) {
+	requestBody := `{"name": "the name", "job": "the role"}`
+    server := httptest.NewServer(http.HandlerFunc(func(responseWriter http.ResponseWriter, request *http.Request) {
+        responseWriter.WriteHeader(http.StatusOK)
+        responseWriter.Write([]byte(`{`))
+    }))
+    defer server.Close()
+	router := SetUpRouter(server.URL)
+    
+	request, _ := http.NewRequest("POST", "/users", bytes.NewBuffer([]byte(requestBody)))
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+    
+    
+    assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+    output, _ := io.ReadAll(recorder.Body)
+    assert.Equal(t, "unexpected end of JSON input", string(output))
+}

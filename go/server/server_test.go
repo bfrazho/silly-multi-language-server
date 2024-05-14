@@ -2,7 +2,6 @@ package server
 
 import (
 	"bytes"
-	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -19,8 +18,7 @@ func TestCanPostUserHappyPath(t *testing.T) {
     server := httptest.NewServer(http.HandlerFunc(func(responseWriter http.ResponseWriter, request *http.Request) {
         assert.Equal(t, "/users", request.URL.Path)
         var userRequest user.UserRequest
-        jsonString, _ := io.ReadAll(request.Body)
-        json.Unmarshal(jsonString, &userRequest)
+        myjson.BindJSON(request.Body, &userRequest)
         assert.Equal(t, user.UserRequest{
             Name: "the name",
             Job: "the role",
@@ -43,4 +41,31 @@ func TestCanPostUserHappyPath(t *testing.T) {
         Id: "123",
     }, userResponse)
 	assert.Equal(t, http.StatusOK, recorder.Code)
+}
+
+func TestFailedToSerializeInputForPostUserReturns400(t *testing.T) {
+    badRequestBody := `{`
+    router := SetUpRouter("http://localhost:8080")
+    
+    request, _ := http.NewRequest("POST", "/users", bytes.NewBuffer([]byte(badRequestBody)))
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+    
+    assert.Equal(t, http.StatusBadRequest, recorder.Code)
+    output, _ := io.ReadAll(recorder.Body)
+    assert.Equal(t, "unexpected EOF", string(output))
+}
+
+func TestFailedToCallEndpointReturns500(t *testing.T) {
+	requestBody := `{"name": "the name", "job": "the role"}`
+	router := SetUpRouter("http://localhost:100000000000000000000")
+    
+	request, _ := http.NewRequest("POST", "/users", bytes.NewBuffer([]byte(requestBody)))
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+    
+
+    assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+    output, _ := io.ReadAll(recorder.Body)
+    assert.Equal(t, "Post \"http://localhost:100000000000000000000/users\": dial tcp: address 100000000000000000000: invalid port", string(output))
 }

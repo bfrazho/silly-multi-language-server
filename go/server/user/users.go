@@ -33,12 +33,18 @@ type UserServer struct {
 
 func (userServer UserServer) createUser(context *gin.Context){
 	var userRequest UserRequest
-	context.BindJSON(&userRequest)
+	if err := context.BindJSON(&userRequest); err != nil {
+		context.String(http.StatusBadRequest, err.Error())
+		return
+	}
+	
 	requestInput, _ := json.Marshal(userRequest)
 	response, err := http.Post(userServer.baseUrl+"/users","application/json", bytes.NewBuffer(requestInput))
 	if err != nil {
-		println(err.Error())
+		context.String(http.StatusInternalServerError, err.Error())
+		return
 	}
+
 	var userResponse UserResponse
 	myjson.BindJSON(response.Body, &userResponse)
 	context.JSON(http.StatusOK, userResponse)

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+if [ ! -f ~/solipath/solipath_setup.bash ]; then
+	curl --create-dirs --url "https://raw.githubusercontent.com/Solipath/Solipath-Scripts/main/solipath_setup.bash" -o ~/solipath/solipath_setup.bash	
+	chmod 777 ~/solipath/solipath_setup.bash
+fi
+~/solipath/solipath_setup.bash "$@"

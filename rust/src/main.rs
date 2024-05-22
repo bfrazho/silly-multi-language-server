@@ -2,6 +2,8 @@ mod app_error;
 mod response_converter;
 mod users;
 use axum::Router;
+use imstr::ImString;
+use reqwest::Client;
 
 #[cfg(all(target_env = "musl", target_pointer_width = "64"))]
 #[global_allocator]
@@ -9,11 +11,12 @@ static ALLOC: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 #[derive(Clone, Default)]
 struct AppState {
-    pub user_base_url: String
+    pub user_base_url: ImString,
+    pub client: Client
 }
 impl AppState{
     pub fn set_user_base_url(&mut self, user_base_url: &str)-> &Self{
-        self.user_base_url = user_base_url.to_string();
+        self.user_base_url = user_base_url.into();
         self
     }
     pub fn to_owned(&self)-> Self {

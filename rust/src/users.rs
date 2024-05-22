@@ -46,10 +46,9 @@ pub fn routes(app_state: &AppState)-> Router{
 }
 
 async fn create_user(
-    State(AppState{user_base_url}): State<AppState>,
+    State(AppState{user_base_url, client, ..}): State<AppState>,
     Json(user_request): Json<UserRequest>,
 ) -> Result<Json<UserResponse>, AppError> {
-    let client = reqwest::Client::new();
     let response = client.post(format!("{}/users", user_base_url))
         .json(&user_request)
         .send()

@@ -39,8 +39,6 @@ describe("server", () => {
     });
 
     test("cannot post bad user", async () => {
-        const userResponse: UserResponse = { name: "userName", job: "the job", id: "123" };
-        setupMockServer(12345, userResponse);
         realServer = startServer(5000, "http://localhost:12345");
         try{
             await axios.post<UserResponse>("http://localhost:5000/users", {badRequest: "badRequest"});

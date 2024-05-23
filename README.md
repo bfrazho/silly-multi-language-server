@@ -3,7 +3,7 @@ in a chain until they reach https://reqres.in/users
 
 As of right now this project has: TypeScript/Express -> Go/Gin -> Kotlin/Spring Boot -> Rust/Axum/Reqwest -> ReqRes Endpoint
 
-Start go/gin server
+Start typescript/express server
 ```bash
 cd typescript
 npm install
